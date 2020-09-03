@@ -1,3 +1,4 @@
+
 function showComboMessage(posX,posY, comboValue){
     $(".comboMessage")
         .html(`COMBO ${comboValue}!`)
@@ -44,3 +45,4 @@ function displayEndScreen(pointsHandler, totalSuccessfulHits, accuracy){
 function disableLifeIcon(lifeNumber){
     $(`#life${lifeNumber}`).css("filter", "grayscale(100%)");
 }
+

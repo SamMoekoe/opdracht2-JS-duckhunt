@@ -1,80 +1,55 @@
-class ShotHandler{
+class StartScreen{
 
-    constructor(initialAmmo){
-        this.initialAmmo = initialAmmo;
-        this.ammo = initialAmmo;
-        this.shoot = new Audio('../assets/sounds/shoot.wav');
+    constructor(){
+        this.availableModes = new Array();
+        this.currentModeIndex = 0;
+        this.initializeModes();
+        this.initializeButtons();
+        this.displaySettingsForCurrentMode();
     }
 
-    getAmmoNumber(){
-        return this.ammo;
+    initializeModes(){
+        this.availableModes.push(
+            {name:"CLASSIC", moves:7, ammunition:3, ducks:2},
+            {name:"MODERN", moves:6, ammunition:5, ducks:3},
+            {name:"EXTREME", moves:7, ammunition:50, ducks:1}
+        )
     }
 
-    resetAmmo(){
-        this.ammo = this.initialAmmo;
-        this.changeShootBoxImage();
+    initializeButtons(){
+        $("#prevMode").click(()=>this.changeMode("prev"));
+        $("#nextMode").click(()=>this.changeMode("next"));
     }
 
-    checkIsNoAmmoLeft(){
-        if (this.ammo == 0) {
-            return true;
+    changeMode(togle){
+        if (togle == "next") {
+            if (this.currentModeIndex<2) {
+                this.currentModeIndex++;
+            }else{
+                this.currentModeIndex = 0;
+            }
+        } else {
+            if (this.currentModeIndex >0) {
+                this.currentModeIndex--;
+            }else{
+                this.currentModeIndex = 2;
+            }
         }
-        return false;
+        this.displaySettingsForCurrentMode();
     }
 
-    checkIfHitSuccessful(ducks, mouseX, mouseY){
-        if (mouseX == undefined || mouseY == undefined) {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
-        }
-        let numberOfSuccessfulHits = 0;
-        this.subtractAmmunition();
-
-        for (let index = 0; index < ducks.length; index++) {
-            let duck = ducks[index];
-            let duckPosition = $(duck.duckId).offset();
-
-            if(this.isShotOnDuck(mouseX,mouseY,duckPosition) && duck.isAlive){
-                duck.fallDown();
-                numberOfSuccessfulHits++;
-            }   
-        }
-        if (numberOfSuccessfulHits>1) {
-            showComboMessage(mouseX,mouseY, numberOfSuccessfulHits);
-        }
-        return numberOfSuccessfulHits;
+    displaySettingsForCurrentMode(){
+        let selectedMode = this.availableModes[this.currentModeIndex];
+        $("#modeSelect .selection").html(selectedMode.name);
     }
 
-    subtractAmmunition(){
-        this.shoot.currentTime = 0;
-        this.shoot.play();
-        this.ammo--;
-        this.changeShootBoxImage();
+    getGameParametersFromUserSelect(){
+        let selectedMode = this.availableModes[this.currentModeIndex];
+        let gameParameters = {modeName:selectedMode.name, ducksNumber:selectedMode.ducks, movesNumber:selectedMode.moves, initialAmmo:selectedMode.ammunition};
+        return gameParameters;
     }
 
-    isShotOnDuck(mouseX,mouseY,duckPosition) {
-        let duckX = duckPosition.left;
-        let duckY = duckPosition.top;
-        let duckWidth = 78;
-        let duckHeight = 73;
-    
-        if ((mouseX>=duckX) && (mouseX <= duckX+duckHeight) && 
-            (mouseY >= duckY) && (mouseY <= duckY+duckWidth)){
-            return true;
-        }
-        return false;
-    }
-
-    changeShootBoxImage() {
-        //add displaying images on classic and modern game mode;
-        $("#ammunitionAmmount").html(this.ammo)
-    }
-
-    enableShooting(){
-        $("#shootBlocker").hide();
-    }
-
-    disablehooting(){
-        $("#shootBlocker").show();
+    hideStartScreen(){
+        document.getElementById("startScreen").style.display = "none";
     }
 }
